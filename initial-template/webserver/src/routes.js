@@ -9,7 +9,6 @@ export default class Routes {
         this.#downloadsFolder = downloadsFolder
     }
     async options(request, response) {
-        console.log('passou options')
         response.writeHead(204, {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'OPTIONS, POST'

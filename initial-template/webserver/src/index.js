@@ -1,34 +1,41 @@
-import http from 'node:http'
-import fs from 'node:fs/promises'
-import { join } from  'node:path'
-import url from 'node:url'
-import Routes from './routes.js'
-import { logger } from './util.js'
-const PORT = 3000
+import http from "node:http";
+import fs from "node:fs/promises";
+import { join } from "node:path";
+import url from "node:url";
+import Routes from "./routes.js";
+import { logger } from "./util.js";
 
-const dirName = url.fileURLToPath(new URL(import.meta.url))
+const PORT = 3000;
 
-const downloadsFolder = join(dirName, '../../', 'downloads')
+const dirName = url.fileURLToPath(new URL(import.meta.url));
 
-const handler = function (request, response) {
-    const defaultRoute = async (request, response) => response.end('Hello!')
-    const routes = new Routes({
-        downloadsFolder
-    })
-    const chosen = routes[request.method.toLowerCase()] || defaultRoute
+const downloadsFolder = join(dirName, "../../", "downloads");
 
-    return chosen.apply(routes, [request, response])
+async function defaultRoute(request, response) {
+  return response.end("Hello!");
 }
 
-const server = http.createServer(handler)
-await fs.rm(downloadsFolder, { recursive: true, force: true })
-await fs.mkdir(downloadsFolder)
+function handler(request, response) {
+  const routes = new Routes({
+    downloadsFolder,
+  });
 
-const startServer = () => {
-    const { address, port } = server.address()
-    logger.info(`app running at http://${address}:${port}`)
+  const validRoute = routes[request.method.toLowerCase()];
+
+  const finalRoute = validRoute || defaultRoute;
+
+  return finalRoute.apply(routes, [request, response]);
 }
 
-server.listen(PORT, startServer)
+const server = http.createServer(handler);
 
-// curl -X POST -F "video.mp4=@big2m.mp4" http://localhost:3000
+await fs.rm(downloadsFolder, { recursive: true, force: true });
+await fs.mkdir(downloadsFolder);
+
+function startServer() {
+  const { address, port } = server.address();
+
+  logger.info(`app running at http://${address}:${port}`);
+}
+
+server.listen(PORT, startServer);

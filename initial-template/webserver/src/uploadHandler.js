@@ -1,38 +1,35 @@
-import Busboy from 'busboy'
-import { logger } from './util.js'
-import url from 'url';
+import Busboy from "busboy";
+import { logger } from "./util.js";
+import url from "url";
 
-import { join } from 'path'
-import { createWriteStream } from 'fs'
-import { pipeline } from 'node:stream/promises'
+import { join } from "path";
+import { createWriteStream } from "fs";
+import { pipeline } from "node:stream/promises";
 
 export default class UploadHandler {
-    #downloadsFolder
-    constructor({ downloadsFolder }) {
-        this.#downloadsFolder = downloadsFolder
-    }
+  // # notation represents something private
+  #downloadsFolder;
 
-    registerEvents(headers, onFinish) {
-        const busboy = Busboy({ headers })
+  constructor({ downloadsFolder }) {
+    this.#downloadsFolder = downloadsFolder;
+  }
 
-        busboy.on("file", this.#onFile.bind(this))
+  registerEvents(headers, onFinish) {
+    const busboy = Busboy({ headers });
 
-        busboy.on("finish", onFinish)
+    busboy.on("file", this.#onFile.bind(this));
 
-        return busboy
-    }
+    busboy.on("finish", onFinish);
 
-    async #onFile(name, file, { filename, encoding, mimeType }) {
-        const saveFileTo = join(this.#downloadsFolder, name)
-        logger.info('Uploading: ' + saveFileTo)
+    return busboy;
+  }
 
-        await pipeline(
-            file,
-            createWriteStream(saveFileTo)
-        )
+  async #onFile(name, file, { filename, encoding, mimeType }) {
+    const saveFileTo = join(this.#downloadsFolder, name);
+    logger.info("Uploading: " + saveFileTo);
 
-        logger.info(`File [${name}] finished!`)
-    }
+    await pipeline(file, createWriteStream(saveFileTo));
 
+    logger.info(`File [${name}] finished!`);
+  }
 }
-
