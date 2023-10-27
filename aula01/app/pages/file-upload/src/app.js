@@ -13,6 +13,10 @@ worker.onerror = (error) => {
 };
 
 worker.onmessage = ({ data }) => {
+  if (data.status !== "done") return;
+  clock.stop();
+  view.updateElapsedTime(`Process took ${took.replace("ago", "")}`);
+  view.downloadBlobAsFile(data.buffer, data.fileName);
   console.log(" no app ", data);
 };
 
@@ -27,11 +31,6 @@ view.configureOnFileChange((file) => {
     took = time;
     view.updateElapsedTime(`Process started ${time}`);
   });
-
-  setTimeout(() => {
-    clock.stop();
-    view.updateElapsedTime(`Process took ${took.replace("ago", "")}`);
-  }, 5000);
 });
 
 // just to simulate the upload via html element
