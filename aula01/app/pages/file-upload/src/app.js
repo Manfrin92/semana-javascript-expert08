@@ -16,8 +16,10 @@ worker.onmessage = ({ data }) => {
   if (data.status !== "done") return;
   clock.stop();
   view.updateElapsedTime(`Process took ${took.replace("ago", "")}`);
-  view.downloadBlobAsFile(data.buffer, data.fileName);
-  console.log(" no app ", data);
+
+  if (data.buffer && data.buffer.length > 0 && data.fileName) {
+    view.downloadBlobAsFile(data.buffer, data.fileName);
+  }
 };
 
 let took = "";
