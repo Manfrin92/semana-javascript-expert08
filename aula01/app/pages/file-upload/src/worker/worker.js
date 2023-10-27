@@ -21,7 +21,7 @@ const encoderConfig = {
   ...qvgaConstraints,
   bitrate: 10e6,
   // WebM
-  code: "vp09.00.10.08",
+  codec: "vp09.00.10.08",
   pt: 4,
   hardwareAcceleration: "prefer-software",
   //   MP4
